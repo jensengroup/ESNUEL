@@ -62,7 +62,7 @@ def confsearch_xTB(conf_complex_mols, conf_names, chrg=0, spin=0, method='ff', s
     
     global num_cpu_single
     
-    # Run a constrained xTB optimizations  
+    # Run xTB optimizations  
     confsearch_args = []
     for i in range(len(conf_names)):
         if precalc_path:
