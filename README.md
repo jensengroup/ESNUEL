@@ -1,5 +1,5 @@
 # ReactivityQM
-A quantum chemistry-based workflow that is completely automated and capable of identifying possible nucleophilic and electrophilic sites and calculating their corresponding MCA or MAA.
+A quantum chemistry-based workflow that is completely automated and capable of identifying possible electrophilic and nucleophilic sites and calculating their corresponding methyl anion affinities (MAA) and methyl cation affinities (MCA).
 
 
 ## Installation
