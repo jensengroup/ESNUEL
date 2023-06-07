@@ -17,7 +17,7 @@ Then download the binaries of xtb version 6.5.1:
 Furthermore, ORCA version 5.0.1 must be installed following the instructions found here: https://sites.google.com/site/orcainputlibrary/setting-up-orca
 
 OBS! 
-  1) The path to ORCA must be modified in "src/ReactivityQM/run_orca.py".
+  1) The path to ORCA must be modified in "src/reactivityQM/run_orca.py".
   2) The number of available CPUs and memory must be modified to match your hardware.
 
 
@@ -26,7 +26,7 @@ OBS!
 An example of usage via CLI command (takes ~10 min. on 2x16 CPU cores):
 
     # Create predictions for an intermolecular Heck reaction:
-    python src/ReactivityQM/calculator.py --smi 'C=CC' --name 'test' &
+    python src/reactivityQM/calculator.py --smi 'C=CC' --name 'test' &
     
 
 The calculations are now saved in a "./calculations" folder and a graphical output of the results (in .html format) are found in a "results" folder.
@@ -34,10 +34,10 @@ The graphical output presents the user with the most reactive electrophilic and 
 
 An example of using ReactiviQM on a dataframe (takes ~20 min. on 16 CPU cores):
 
-    # Create predictions for "3d" from the Cabri dataset (data/cabri/data_cabri.pkl):
-    python heckQM.py
+    # Create predictions for "3d" from the Cabri dataset (data/xxx/xxx.pkl):
+    python src/reactivityQM/calculator.py
 
-The calculations are now saved in a "./calculations" folder, and a dataframe containing the results are found in "submitit/*_result.pkl"
+The calculations are now saved in a "./calculations" folder, and a dataframe containing the results are found in "submitit_reactivityQM/*_result.pkl"
 
 
 ## Citation 

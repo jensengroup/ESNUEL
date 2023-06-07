@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2022 Nicolai Ree
+# Copyright (c) 2023 Nicolai Ree
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@ from rdkit.Chem import AllChem
 # lg = RDLogger.logger()
 # lg.setLevel(RDLogger.CRITICAL)
 
-path = os.path.dirname(os.path.realpath(__file__)).replace('/src/uniRXNpred', '')
+path = os.path.dirname(os.path.realpath(__file__)).replace('/src/reactivityQM', '')
 from locate_atom_sites import find_electrophilic_sites_and_generate_MAAproducts, find_nucleophilic_sites_and_generate_MCAproducts
 from molecule_svg import generate_structure
 import molecule_formats as molfmt
@@ -327,7 +327,7 @@ if __name__ == "__main__":
     import submitit
     import sys
 
-    executor = submitit.AutoExecutor(folder=os.path.join(path, 'submitit_uniRXNpred'))
+    executor = submitit.AutoExecutor(folder=os.path.join(path, 'submitit_reactivityQM'))
     executor.update_parameters(
         name="uniRXNpred",
         cpus_per_task=int(num_cpu_parallel*num_cpu_single),

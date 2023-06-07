@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (c) 2022 Nicolai Ree
+# Copyright (c) 2023 Nicolai Ree
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@ from ase.units import Hartree, mol, kcal, kJ
 import molecule_formats as molfmt
 
 # xTB path and calc setup
-path = os.path.dirname(os.path.realpath(__file__)).replace('/src/ReactivityQM', '')
+path = os.path.dirname(os.path.realpath(__file__)).replace('/src/reactivityQM', '')
 XTBHOME = os.path.join(path, 'dep/xtb-6.5.1')
 XTBPATH = os.path.join(path, 'dep/xtb-6.5.1/share/xtb')
 MANPATH = os.path.join(path, 'dep/xtb-6.5.1/share/man')
