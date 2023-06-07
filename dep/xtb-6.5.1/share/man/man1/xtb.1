@@ -1,0 +1,748 @@
+'\" t
+.\"     Title: xtb
+.\"    Author: [see the "AUTHOR(S)" section]
+.\" Generator: Asciidoctor 2.0.17
+.\"      Date: 2022-07-11
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "XTB" "1" "2022-07-11" "\ \&" "\ \&"
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.ss \n[.ss] 0
+.nh
+.ad l
+.de URL
+\fI\\$2\fP <\\$1>\\$3
+..
+.als MTO URL
+.if \n[.g] \{\
+.  mso www.tmac
+.  am URL
+.    ad l
+.  .
+.  am MTO
+.    ad l
+.  .
+.  LINKSTYLE blue R < >
+.\}
+.SH "NAME"
+xtb \- performs semiempirical quantummechanical calculations, for version 6.0 and newer
+.SH "SYNOPSIS"
+.sp
+\fBxtb\fP [\fIOPTIONS\fP] \fIFILE\fP [\fIOPTIONS\fP]
+.SH "DESCRIPTION"
+.sp
+The \f(CRxtb(1)\fP program performs semiempirical quantummechanical calculations.
+The underlying effective Hamiltonian is derived from density functional
+tight binding (DFTB). This implementation of the xTB Hamiltonian is currently
+compatible with the zeroth, first and second level parametrisation for
+geometries, frequencies and non\-covalent interactions (GFN)
+as well as with the ionisation potential and
+electron affinity (IPEA) parametrisation of the GFN1 Hamiltonian.
+The generalized born (GB) model with solvent accessable surface area (SASA)
+is also available available in this version.
+Ground state calculations for the simplified Tamm\-Danceoff approximation (sTDA)
+with the vTB model are currently not implemented.
+.SS "GEOMETRY INPUT"
+.sp
+The wide variety of input formats for the geometry are supported by using
+the mctc\-lib. Supported formats are:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Xmol/xyz files (xyz, log)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Turbomole\(cqs coord, riper\(cqs periodic coord (tmol, coord)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+DFTB+ genFormat geometry inputs as cluster, supercell or fractional (gen)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+VASP\(cqs POSCAR/CONTCAR input files (vasp, poscar, contcar)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Protein Database files, only single files (pdb)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Connection table files, molfile (mol) and structure data format (sdf)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Gaussian\(cqs external program input (ein)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+JSON input with \f(CRqcschema_molecule\fP or \f(CRqcschema_input\fP structure (json)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+FHI\-AIMS\*(Aq input files (geometry.in)
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.  sp -1
+.  IP \(bu 2.3
+.\}
+Q\-Chem molecule block inputs (qchem)
+.RE
+.sp
+For a full list visit: \c
+.URL "https://grimme\-lab.github.io/mctc\-lib/page/index.html" "" ""
+.sp
+\f(CRxtb(1)\fP reads additionally \f(CR.CHRG\fP and \f(CR.UHF\fP files if present.
+.SH "INPUT SOURCES"
+.sp
+\f(CRxtb(1)\fP gets its information from different sources. The one with highest
+priority is the commandline with all allowed flags and arguments described below.
+The secondary source is the \f(CRxcontrol(7)\fP system, which can in principle
+use as many input files as wished. The \f(CRxcontrol(7)\fP system is the successor
+of the set\-block as present in version 5.8.2 and earlier. This implementation
+of \f(CRxtb(1)\fP reads the \f(CRxcontrol(7)\fP from two of three possible sources,
+the local xcontrol file or the \fIFILE\fP used to specify the geometry
+and the global configuration file found in the \f(CRXTBPATH\fP.
+.SH "OPTIONS"
+.sp
+\fB\-c, \-\-chrg\fP \fIINT\fP
+.RS 4
+specify molecular charge as \fIINT\fP, overrides \f(CR.CHRG\fP file and \f(CRxcontrol\fP option
+.RE
+.sp
+\fB\-u, \-\-uhf\fP \fIINT\fP
+.RS 4
+specify number of unpaired electrons as \fIINT\fP, overrides \f(CR.UHF\fP file and \f(CRxcontrol\fP option
+.RE
+.sp
+\fB\-\-gfn\fP \fIINT\fP
+.RS 4
+specify parametrisation of GFN\-xTB (default = 2)
+.RE
+.sp
+\fB\-\-gfnff, \-\-gff\fP
+.RS 4
+specify parametrisation of GFN\-FF
+.RE
+.sp
+\fB\-\-oniom\fP \fIMETHOD\fP \fILIST\fP
+.RS 4
+use subtractive embedding via ONIOM method. \fIMETHOD\fP is given as \f(CRinner:outer\fP
+where \f(CRinner\fP can be \fIorca\fP, \fIturbomole\fP, \fIgfn2\fP, \fIgfn1\fP, or \fIgfnff\fP and
+\f(CRouter\fP can be \fIgfn2\fP, \fIgfn1\fP, or \fIgfnff\fP.
+The inner region is given as a comma separated indices directly in the commandline
+or in a file with each index on a separate line.
+.RE
+.sp
+\fB\-\-etemp\fP \fIREAL\fP
+.RS 4
+electronic temperature (default = 300K)
+.RE
+.sp
+\fB\-\-esp\fP
+.RS 4
+calculate electrostatic potential on VdW\-grid
+.RE
+.sp
+\fB\-\-stm\fP
+.RS 4
+calculate STM image
+.RE
+.sp
+\fB\-a, \-\-acc\fP \fIREAL\fP
+.RS 4
+accuracy for SCC calculation, lower is better (default = 1.0)
+.RE
+.sp
+\fB\-\-vparam\fP \fIFILE\fP
+.RS 4
+Parameter file for vTB calculation
+.RE
+.sp
+\fB\-\-xparam\fP \fIFILE\fP
+.RS 4
+Parameter file for xTB calculation (not used)
+.RE
+.sp
+\fB\-\-alpb\fP \fISOLVENT\fP [\fISTATE\fP]
+.RS 4
+analytical linearized Poisson\-Boltzmann (ALPB) model,
+available solvents are \fIacetone\fP, \fIacetonitrile\fP, \fIaniline\fP, \fIbenzaldehyde\fP,
+\fIbenzene\fP, \fIch2cl2\fP, \fIchcl3\fP, \fIcs2\fP, \fIdioxane\fP, \fIdmf\fP, \fIdmso\fP, \fIether\fP,
+\fIethylacetate\fP, \fIfurane\fP, \fIhexandecane\fP, \fIhexane\fP, \fImethanol\fP, \fInitromethane\fP,
+\fIoctanol\fP, \fIwoctanol\fP, \fIphenol\fP, \fItoluene\fP, \fIthf\fP, \fIwater\fP.
+The solvent input is not case\-sensitive.
+The Gsolv reference state can be chosen as \fIreference\fP or \fIbar1M\fP (default).
+.RE
+.sp
+\fB\-g, \-\-gbsa\fP \fISOLVENT\fP [\fISTATE\fP]
+.RS 4
+generalized born (GB) model with solvent accessable surface (SASA) model,
+available solvents are \fIacetone\fP, \fIacetonitrile\fP, \fIbenzene\fP (only GFN1\-xTB),
+\fICH2Cl2\fP, \fICHCl3\fP, \fICS2\fP, \fIDMF\fP (only GFN2\-xTB), \fIDMSO\fP, \fIether\fP, \fIH2O\fP,
+\fImethanol\fP, \fIn\-hexane\fP (only GFN2\-xTB), \fITHF\fP and \fItoluene\fP.
+The solvent input is not case\-sensitive.
+The Gsolv reference state can be chosen as \fIreference\fP or \fIbar1M\fP (default).
+.RE
+.sp
+\fB\-\-cma\fP
+.RS 4
+shifts molecule to center of mass and transforms cartesian coordinates
+into the coordinate system of the principle axis (not affected by
+\(oqisotopes\(cq\-file).
+.RE
+.sp
+\fB\-\-pop\fP
+.RS 4
+requests printout of Mulliken population analysis
+.RE
+.sp
+\fB\-\-molden\fP
+.RS 4
+requests printout of molden file
+.RE
+.sp
+\fB\-\-dipole\fP
+.RS 4
+requests dipole printout
+.RE
+.sp
+\fB\-\-wbo\fP
+.RS 4
+requests Wiberg bond order printout
+.RE
+.sp
+\fB\-\-lmo\fP
+.RS 4
+requests localization of orbitals
+.RE
+.sp
+\fB\-\-fod\fP
+.RS 4
+requests FOD calculation
+.RE
+.SS "RUNTYPS"
+.if n .sp
+.RS 4
+.it 1 an-trap
+.nr an-no-space-flag 1
+.nr an-break-flag 1
+.br
+.ps +1
+.B Note
+.ps -1
+.br
+.sp
+You can only select \fBone\fP runtyp, only the first runtyp will be used
+from the program, use implemented composite runtyps to perform several
+operations at once.
+.sp .5v
+.RE
+.sp
+\fB\-\-scc, \-\-sp\fP
+.RS 4
+performs a single point calculation
+.RE
+.sp
+\fB\-\-vip\fP
+.RS 4
+performs calculation of ionisation potential.
+This needs the .param_ipea.xtb parameters
+and a GFN1 Hamiltonian.
+.RE
+.sp
+\fB\-\-vea\fP
+.RS 4
+performs calculation of electron affinity.
+This needs the .param_ipea.xtb parameters
+and a GFN1 Hamiltonian.
+.RE
+.sp
+\fB\-\-vipea\fP
+.RS 4
+performs calculation of electron affinity and ionisation potential.
+This needs the .param_ipea.xtb parameters
+and a GFN1 Hamiltonian.
+.RE
+.sp
+\fB\-\-vfukui\fP
+.RS 4
+performs calculation of Fukui indices.
+.RE
+.sp
+\fB\-\-vomega\fP
+.RS 4
+performs calculation of electrophilicity index.
+This needs the .param_ipea.xtb parameters
+and a GFN1 Hamiltonian.
+.RE
+.sp
+\fB\-\-grad\fP
+.RS 4
+performs a gradient calculation
+.RE
+.sp
+\fB\-o, \-\-opt\fP [\fILEVEL\fP]
+.RS 4
+call \f(CRancopt(3)\fP to perform a geometry optimization,
+levels from crude, sloppy, loose, normal (default), tight, verytight
+to extreme can be chosen
+.RE
+.sp
+\fB\-\-hess\fP
+.RS 4
+perform a numerical hessian calculation on input geometry
+.RE
+.sp
+\fB\-\-ohess\fP [\fILEVEL\fP]
+.RS 4
+perform a numerical hessian calculation on an \f(CRancopt(3)\fP optimized
+geometry
+.RE
+.sp
+\fB\-\-bhess\fP [\fILEVEL\fP]
+.RS 4
+perform a biased numerical hessian calculation on an \f(CRancopt(3)\fP optimized
+geometry
+.RE
+.sp
+\fB\-\-md\fP
+.RS 4
+molecular dynamics simulation on start geometry
+.RE
+.sp
+\fB\-\-metadyn\fP [\fIint\fP]
+.RS 4
+meta dynamics simulation on start geometry, saving \fIint\fP snapshots
+of the trajectory to bias the simulation
+.RE
+.sp
+\fB\-\-omd\fP
+.RS 4
+molecular dynamics simulation on \f(CRancopt(3)\fP optimized geometry,
+a loose optimization level will be chosen
+.RE
+.sp
+\fB\-\-metaopt\fP [\fILEVEL\fP]
+.RS 4
+call \f(CRancopt(3)\fP to perform a geometry optimization,
+then try to find other minimas by meta dynamics
+.RE
+.sp
+\fB\-\-path\fP [\fIFILE\fP]
+.RS 4
+use meta dynamics to calculate a path from the input geometry
+to the given product structure
+.RE
+.sp
+\fB\-\-reactor\fP
+.RS 4
+experimental
+.RE
+.sp
+\fB\-\-modef\fP \fIINT\fP
+.RS 4
+modefollowing algorithm. \fIINT\fP specifies the mode that should be
+used for the modefollowing.
+.RE
+.SS "GENERAL"
+.sp
+\fB\-I, \-\-input\fP \fIFILE\fP
+.RS 4
+use \fIFILE\fP as input source for \f(CRxcontrol(7)\fP instructions
+.RE
+.sp
+\fB\-\-namespace\fP \fISTRING\fP
+.RS 4
+give this \f(CRxtb(1)\fP run a namespace. All files, even temporary
+ones, will be named according to \fISTRING\fP (might not work everywhere).
+.RE
+.sp
+\fB\-\-[no]copy\fP
+.RS 4
+copies the \f(CRxcontrol\fP file at startup (default = true)
+.RE
+.sp
+\fB\-\-[no]restart\fP
+.RS 4
+restarts calculation from \f(CRxtbrestart\fP (default = true)
+.RE
+.sp
+\fB\-P, \-\-parallel\fP \fIINT\fP
+.RS 4
+number of parallel processes
+.RE
+.sp
+\fB\-\-define\fP
+.RS 4
+performs automatic check of input and terminate
+.RE
+.sp
+\fB\-\-json\fP
+.RS 4
+write xtbout.json file
+.RE
+.sp
+\fB\-\-citation\fP
+.RS 4
+print citation and terminate
+.RE
+.sp
+\fB\-\-license\fP
+.RS 4
+print license and terminate
+.RE
+.sp
+\fB\-v, \-\-verbose\fP
+.RS 4
+be more verbose (not supported in every unit)
+.RE
+.sp
+\fB\-s, \-\-silent\fP
+.RS 4
+clutter the screen less (not supported in every unit)
+.RE
+.sp
+\fB\-\-ceasefiles\fP
+.RS 4
+reduce the amount of output and files written
+.RE
+.sp
+\fB\-\-strict\fP
+.RS 4
+turns all warnings into hard errors
+.RE
+.sp
+\fB\-h, \-\-help\fP
+.RS 4
+show help page
+.RE
+.SH "ENVIRONMENT VARIABLES"
+.sp
+\f(CRxtb(1)\fP accesses a path\-like variable to determine the location of its
+parameter files, you have to provide the \f(CRXTBPATH\fP variable in the same
+syntax as the system \f(CRPATH\fP variable. If this variable is not set, \f(CRxtb(1)\fP
+will try to generate the \f(CRXTBPATH\fP from the deprecated \f(CRXTBHOME\fP variable.
+In case the \f(CRXTBHOME\fP variable is not set it will be generated from the
+\f(CRHOME\fP variable. So in principle storing the parameter files in the users
+home directory is suffient but might lead to come cluttering.
+.sp
+Since the \f(CRXTBHOME\fP variable is deprecated with version 6.0 and newer
+\f(CRxtb(1)\fP will issue a warning if \f(CRXTBHOME\fP is not part of the \f(CRXTBPATH\fP
+since the \f(CRXTBHOME\fP variable is not used in production runs.
+.SH "LOCAL FILES"
+.sp
+\f(CRxtb(1)\fP accesses a number of local files in the current working directory
+and also writes some output in specific files. Note that not all input
+and output files allow the \fB\-\-namespace\fP option.
+.SS "INPUT"
+.sp
+\fB.CHRG\fP
+.RS 4
+molecular charge as \fIint\fP
+.RE
+.sp
+\fB.UHF\fP
+.RS 4
+Number of unpaired electrons as \fIint\fP
+.RE
+.sp
+\fBmdrestart\fP
+.RS 4
+contains restart information for MD, \fB\-\-namespace\fP compatible.
+.RE
+.sp
+\fBpcharge\fP
+.RS 4
+point charge input, format is \fIreal\fP \fIreal\fP \fIreal\fP \fIreal\fP [\fIint\fP].
+The first real is used as partial charge, the next three entries
+are the cartesian coordinates and the last is an optional atom type.
+Note that the point charge input is not affected by a CMA transformation.
+Also parallel Hessian calculations will fail due to I/O errors when using
+point charge embedding.
+.RE
+.sp
+\fBxcontrol\fP
+.RS 4
+default input file in \fB\-\-copy\fP mode, see \f(CRxcontrol(7)\fP for details,
+set by \fB\-\-input\fP.
+.RE
+.sp
+\fBxtbrestart\fP
+.RS 4
+contains restart information for SCC, \fB\-\-namespace\fP compatible.
+.RE
+.SS "OUTPUT"
+.sp
+\fBcharges\fP
+.RS 4
+contains Mulliken partial charges calculated in SCC
+.RE
+.sp
+\fBwbo\fP
+.RS 4
+contains Wiberg bond order calculated in SCC, \fB\-\-namespace\fP compatible.
+.RE
+.sp
+\fBenergy\fP
+.RS 4
+total energy in Turbomole format
+.RE
+.sp
+\fBgradient\fP
+.RS 4
+geometry, energy and gradient in Turbomole format
+.RE
+.sp
+\fBhessian\fP
+.RS 4
+contains the (not mass weighted) cartesian Hessian, \fB\-\-namespace\fP compatible.
+.RE
+.sp
+\fBxtbopt.xyz\fP, \fBxtbopt.coord\fP
+.RS 4
+optimized geometry in the same format as the input geometry.
+.RE
+.sp
+\fBxtbhess.coord\fP
+.RS 4
+distorted geometry if imaginary frequency was found
+.RE
+.sp
+\fBxtbopt.log\fP
+.RS 4
+contains all structures obtained in the geometry optimization
+with the respective energy in the comment line in a XMOL formatted
+trajectory
+.RE
+.sp
+\fBxtbsiman.log\fP,\fBxtb.trj.\fIint\fP\fP
+.RS 4
+trajectories from MD
+.RE
+.sp
+\fBscoord.\fIint\fP\fP
+.RS 4
+coordinate dump of MD
+.RE
+.sp
+\fBfod.cub\fP
+.RS 4
+FOD on a cube\-type grid
+.RE
+.sp
+\fBspindensity.cub\fP
+.RS 4
+spindensity on a cube\-type grid
+.RE
+.sp
+\fBdensity.cub\fP
+.RS 4
+density on a cube\-type grid
+.RE
+.sp
+\fBmolden.input\fP
+.RS 4
+MOs and occupation for visualisation and sTDA\-xTB calculations
+.RE
+.sp
+\fBpcgrad\fP
+.RS 4
+gradient of the point charges
+.RE
+.sp
+\fBxtb_esp.cosmo\fP
+.RS 4
+ESP fake cosmo output
+.RE
+.sp
+\fBxtb_esp_profile.dat\fP
+.RS 4
+ESP histogramm data
+.RE
+.sp
+\fBvibspectrum\fP
+.RS 4
+Turbomole style vibrational spectrum data group
+.RE
+.sp
+\fBg98.out\fP, \fBg98l.out\fP, \fBg98_canmode.out\fP, \fBg98_locmode.out\fP
+.RS 4
+g98 fake output with normal or local modes
+.RE
+.sp
+\fB.tmpxtbmodef\fP
+.RS 4
+input for mode following
+.RE
+.sp
+\fBcoordprot.0\fP
+.RS 4
+protonated species
+.RE
+.sp
+\fBxtblmoinfo\fP
+.RS 4
+centers of the localized molecular orbitals
+.RE
+.sp
+\fBlmocent.coord\fP
+.RS 4
+centers of the localized molecular orbitals
+.RE
+.sp
+\fBtmpxx\fP
+.RS 4
+number of recommended modes for mode following
+.RE
+.sp
+\fBxtb_normalmodes\fP, \fBxtb_localmodes\fP
+.RS 4
+binary dump for mode following
+.RE
+.SS "TOUCH"
+.sp
+\fBxtbmdok\fP
+.RS 4
+generated by successful MD
+.RE
+.sp
+\fB.xtbok\fP
+.RS 4
+generated after each successful \f(CRxtb(1)\fP run
+.RE
+.sp
+\fB.sccnotconverged\fP
+.RS 4
+generated after failed SCC with printlevel=2
+.RE
+.SH "WARNINGS"
+.sp
+\f(CRxtb(1)\fP can generate the two types of warnings, the first warning section
+is printed immediately after the normal banner at startup, summing up the
+evaluation of all input sources (commandline, xcontrol, xtbrc). To check
+this warnings exclusively before running an expensive calculation a
+input check is implemented via the \fB\-\-define\fP flag. Please, study this
+warnings carefully!
+.sp
+After \f(CRxtb(1)\fP has evaluated the all input sources it immediately enters
+the production mode. Severe errors will lead to an abnormal termination
+which is signalled by the printout to STDERR and a non\-zero return value
+(usually 128). All non\-fatal errors are summerized in the end of the calculation
+in one block, right bevor the timing analysis.
+.sp
+To aid the user to fix the problems generating these warnings a brief
+summary of each warning with its respective string representation in the
+output will be shown here:
+.sp
+\fBANCopt failed to converge the optimization\fP
+.RS 4
+geometry optimization has failed to converge in the given number
+optimization cycles. This is not neccessary a problem if only a
+small number of cycles was given for the optimization on purpose.
+All further calculations are done on the last geometry of the
+optimization.
+.RE
+.sp
+\fBHessian on incompletely optimized geometry!\fP
+.RS 4
+This warning will be issued twice, once before the Hessian,
+calculations starts (it would otherwise take some time before
+this this warning could be detected) and in the warning block
+in the end. The warning will be generated if the gradient norm
+on the given geometry is higher than a certain threshold.
+.RE
+.SH "EXIT STATUS"
+.sp
+\fB0\fP
+.RS 4
+normal termination of \f(CRxtb(1)\fP
+.RE
+.sp
+\fB128\fP
+.RS 4
+Failure (termination via error stop generates 128 as return value)
+.RE
+.SH "BUGS"
+.sp
+please report all bugs with an example input, \f(CR\-\-copy\fP dump of internal settings
+and the used geometry, as well as the \f(CR\-\-verbose\fP output to \c
+.MTO "xtb\(atthch.uni\-bonn.de" "" ""
+.SH "RESOURCES"
+.sp
+Main web site: \c
+.URL "http://grimme.uni\-bonn.de/software/xtb" "" ""
+.SH "COPYING"
+.sp
+Copyright (C) 2015\-2018 S. Grimme. For non\-commerical, academia use only.
