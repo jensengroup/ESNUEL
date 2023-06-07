@@ -25,8 +25,8 @@ OBS!
 
 An example of usage via CLI command (takes ~10 min. on 2x16 CPU cores):
 
-    # Create predictions for an intermolecular Heck reaction:
-    python src/reactivityQM/calculator.py --smi 'C=CC' --name 'test' &
+    # Create predictions for a test molecule (OBS! Only names without "_" are allowed):
+    python src/reactivityQM/calculator.py --smi 'C[C+:20](C)CC(C)(C)C1=C(C=CC(=C1)Br)[OH:10]' --name 'testmol' &
     
 
 The calculations are now saved in a "./calculations" folder and a graphical output of the results (in .html format) are found in a "results" folder.
@@ -34,7 +34,7 @@ The graphical output presents the user with the most reactive electrophilic and 
 
 An example of using ReactiviQM on a dataframe (takes ~20 min. on 16 CPU cores):
 
-    # Create predictions for "3d" from the Cabri dataset (data/xxx/xxx.pkl):
+    # Create predictions for a small dataset (data/xxx/xxx.pkl):
     python src/reactivityQM/calculator.py
 
 The calculations are now saved in a "./calculations" folder, and a dataframe containing the results are found in "submitit_reactivityQM/*_result.pkl"
