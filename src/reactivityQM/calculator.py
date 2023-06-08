@@ -21,6 +21,7 @@
 # SOFTWARE.
 
 import os
+import sys
 import copy
 import argparse
 import numpy as np
@@ -34,7 +35,10 @@ from rdkit.Chem import AllChem
 # lg = RDLogger.logger()
 # lg.setLevel(RDLogger.CRITICAL)
 
-path = os.path.dirname(os.path.realpath(__file__)).replace('/src/reactivityQM', '')
+execution_path = os.getcwd()
+base_dir = os.path.dirname(os.path.realpath(__file__)).replace('/src/reactivityQM', '')
+
+os.chdir(os.path.join(base_dir, 'src/reactivityQM')) # change path to make the calculation run
 from locate_atom_sites import find_electrophilic_sites_and_generate_MAAproducts, find_nucleophilic_sites_and_generate_MCAproducts
 from molecule_svg import generate_structure
 import molecule_formats as molfmt
@@ -55,6 +59,7 @@ def parse_args():
     parser.add_argument('-s', '--smiles', default='C[C+:20](C)CC(C)(C)C1=C(C=CC(=C1)Br)[OH:10]',
                         help='SMILES input for regioselectivity predictions')
     parser.add_argument('-n', '--name', default='testmol', help='The name of the molecule. Only names without "_" are allowed.')
+    parser.add_argument('-b', '--batch', default=None, help='Path to .csv file for running batched calculations. E.g. -b ./example/testmols.csv')
     return parser.parse_args()
 
 
@@ -80,7 +85,7 @@ def confsearch_xTB(conf_complex_mols, conf_names, chrg=0, spin=0, method='ff', s
         conf_energies.append(conf_energy)
         conf_paths.append(path_opt)
 
-    # Find the conformers below cutoff #kcal/mol (3 kcal/mol = 12.6 kJ/mol)
+    # Find the conformers below cutoff in kJ/mol (3 kcal/mol = 12.6 kJ/mol)
     rel_conf_energies = np.array(conf_energies) - np.min(conf_energies) #covert to relative energies
     below_cutoff = (rel_conf_energies <= conf_cutoff).sum() #get number of conf below cutoff
 
@@ -151,7 +156,7 @@ def calculateEnergy(args):
     ### START - CLEAN UP ###
     for conf_name in conf_names_copy:
 
-        conf_path = os.path.join(path, 'calculations', '/'.join(conf_name.split('_')))
+        conf_path = os.path.join(base_dir, 'calculations', '/'.join(conf_name.split('_')))
         
         if os.path.isfile(os.path.join(conf_path, conf_name+'_gfnff.xyz')):
             os.remove(os.path.join(conf_path, conf_name+'_gfnff.xyz'))
@@ -277,7 +282,7 @@ def calc_MAA_and_MCA(reac_smis: str, name: str):
     ### Draw the output ###
     result_svg = generate_structure(reac_mols, elec_sites_list, MAA_values, nuc_sites_list, MCA_values, molsPerRow=4)
     
-    fd = open(f'{path}/calculations/{name}.svg','w')
+    fd = open(f'{base_dir}/calculations/{name}.svg','w')
     fd.write(result_svg)
     fd.close()
     ### END ###
@@ -327,37 +332,40 @@ if __name__ == "__main__":
     import submitit
     import sys
 
-    executor = submitit.AutoExecutor(folder=os.path.join(path, 'submitit_reactivityQM'))
+    args = parse_args()
+
+    executor = submitit.AutoExecutor(folder=os.path.join(base_dir, f'submitit_results/{args.name}'))
     executor.update_parameters(
-        name="uniRXNpred",
+        name="reactivityQM",
         cpus_per_task=int(num_cpu_parallel*num_cpu_single),
         mem_gb=int(mem_gb),
         timeout_min=6000,
         slurm_partition="kemi1",
-        slurm_array_parallelism=350,
+        slurm_array_parallelism=25,
     )
     print(executor)
 
-    ### CLI JOB ###
-    args = parse_args()
 
-    jobs = []
-    with executor.batch():
-        job = executor.submit(calc_MAA_and_MCA, args.smiles, args.name)
-        jobs.append(job)
-    ### END ###
-
-
-    # ### Batch JOB ###
-    # df = pd.read_csv(sys.argv[1], sep=',', encoding= 'unicode_escape') #dataset e.g. MCA_paper_fig5.smiles
-    # # df = df[df['name'].isin(['baldiELEC851'])]
-    # # df = df[df['omega_transition_state'] == 0]
+    if args.batch is None:
+        
+        ### CLI JOB ###
+        jobs = []
+        with executor.batch():
+            job = executor.submit(calc_MAA_and_MCA, args.smiles, args.name)
+            jobs.append(job)
+        ### END ###
     
-    # jobs = []
-    # with executor.batch():
-    #     chunk_size = 1
-    #     for start in range(0, df.shape[0], chunk_size):
-    #         df_subset = df.iloc[start:start + chunk_size]
-    #         job = executor.submit(control_calcs, df_subset)
-    #         jobs.append(job)
-    # ### END ###
+    else:
+
+        ### Batch JOB ###
+        df = pd.read_csv(os.path.join(execution_path, args.batch), sep=',', encoding= 'unicode_escape') # read .csv file that contains the columns: "name" and "smiles"
+        df = df.head(1)
+        
+        jobs = []
+        with executor.batch():
+            chunk_size = 1
+            for start in range(0, df.shape[0], chunk_size):
+                df_subset = df.iloc[start:start + chunk_size]
+                job = executor.submit(control_calcs, df_subset)
+                jobs.append(job)
+        ### END ###

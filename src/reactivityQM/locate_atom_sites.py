@@ -22,6 +22,7 @@
 
 import numpy as np
 from rdkit import Chem
+
 import molecule_formats as molfmt
 
 

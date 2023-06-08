@@ -31,11 +31,11 @@ from ase.units import Hartree, mol, kcal, kJ
 import molecule_formats as molfmt
 
 # xTB path and calc setup
-path = os.path.dirname(os.path.realpath(__file__)).replace('/src/reactivityQM', '')
-XTBHOME = os.path.join(path, 'dep/xtb-6.5.1')
-XTBPATH = os.path.join(path, 'dep/xtb-6.5.1/share/xtb')
-MANPATH = os.path.join(path, 'dep/xtb-6.5.1/share/man')
-LD_LIBRARY_PATH = os.path.join(path, 'dep/xtb-6.5.1/lib')
+base_dir = os.path.dirname(os.path.realpath(__file__)).replace('/src/reactivityQM', '')
+XTBHOME = os.path.join(base_dir, 'dep/xtb-6.5.1')
+XTBPATH = os.path.join(base_dir, 'dep/xtb-6.5.1/share/xtb')
+MANPATH = os.path.join(base_dir, 'dep/xtb-6.5.1/share/man')
+LD_LIBRARY_PATH = os.path.join(base_dir, 'dep/xtb-6.5.1/lib')
 
 OMP_NUM_THREADS = '1'
 MKL_NUM_THREADS = '1'
@@ -62,11 +62,11 @@ def run_xTB(args): #(xyzfile, molecule, chrg=0, spin=0, method=' 1', solvent='',
 
     # Create calculation directory
     name = xyzfile.split('.')[0]
-    mol_calc_path = os.path.join(path, 'calculations', '/'.join(name.split('_')))
+    mol_calc_path = os.path.join(base_dir, 'calculations', '/'.join(name.split('_')))
     os.makedirs(mol_calc_path, exist_ok=True)
     
     # Create files in calculation directory 
-    start_structure_xyz = os.path.join(path, 'calculations', '/'.join(name.split('_')[:-1]), xyzfile)
+    start_structure_xyz = os.path.join(base_dir, 'calculations', '/'.join(name.split('_')[:-1]), xyzfile)
     start_structure_sdf = os.path.join(mol_calc_path, name+'.sdf')
     final_structure_sdf = os.path.join(mol_calc_path, name+'_opt.sdf')
     if precalc_path:
