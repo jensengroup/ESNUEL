@@ -59,7 +59,7 @@ def parse_args():
     parser.add_argument('-s', '--smiles', default='C[C+:20](C)CC(C)(C)C1=C(C=CC(=C1)Br)[OH:10]',
                         help='SMILES input for regioselectivity predictions')
     parser.add_argument('-n', '--name', default='testmol', help='The name of the molecule. Only names without "_" are allowed.')
-    parser.add_argument('-b', '--batch', default=None, help='Path to .csv file for running batched calculations. E.g. -b ./example/testmols.csv')
+    parser.add_argument('-b', '--batch', default=None, help='Path to .csv file for running batched calculations e.g. --> python src/reactivityQM/calculator.py -b example/testmols.csv')
     return parser.parse_args()
 
 
