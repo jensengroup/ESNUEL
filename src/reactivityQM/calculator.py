@@ -40,7 +40,7 @@ base_dir = os.path.dirname(os.path.realpath(__file__)).replace('/src/reactivityQ
 
 os.chdir(os.path.join(base_dir, 'src/reactivityQM')) # change path to make the calculation run
 from locate_atom_sites import find_electrophilic_sites_and_generate_MAAproducts, find_nucleophilic_sites_and_generate_MCAproducts
-from molecule_svg import generate_structure
+from molecule_drawer import generate_structure, generate_output_tables, html_output
 import molecule_formats as molfmt
 import run_xTB as run_xTB
 import run_orca as run_orca
@@ -80,27 +80,29 @@ def confsearch_xTB(conf_complex_mols, conf_names, chrg=0, spin=0, method='ff', s
 
     conf_energies = []
     conf_paths = []
+    calc_logs = []
     for result in results:
-        conf_energy, path_opt = result
+        conf_energy, path_opt, calc_log = result
         conf_energies.append(conf_energy)
         conf_paths.append(path_opt)
+        calc_logs.append(calc_log)
 
     # Find the conformers below cutoff in kJ/mol (3 kcal/mol = 12.6 kJ/mol)
     rel_conf_energies = np.array(conf_energies) - np.min(conf_energies) #covert to relative energies
     below_cutoff = (rel_conf_energies <= conf_cutoff).sum() #get number of conf below cutoff
 
-    conf_tuble = list(zip(conf_names, conf_complex_mols, conf_paths, conf_energies, rel_conf_energies)) #make a tuble
+    conf_tuble = list(zip(conf_names, conf_complex_mols, conf_paths, conf_energies, rel_conf_energies, calc_logs)) #make a tuble
     conf_tuble = sorted(conf_tuble, key=itemgetter(4))[:below_cutoff] #get only the best conf below cutoff
 
-    conf_names, conf_complex_mols, conf_paths, conf_energies, rel_conf_energies = zip(*conf_tuble) #unzip tuble
-    conf_names, conf_complex_mols, conf_paths, conf_energies = list(conf_names), list(conf_complex_mols), list(conf_paths), list(conf_energies) #tubles to lists
+    conf_names, conf_complex_mols, conf_paths, conf_energies, rel_conf_energies, calc_logs = zip(*conf_tuble) #unzip tuble
+    conf_names, conf_complex_mols, conf_paths, conf_energies, calc_logs = list(conf_names), list(conf_complex_mols), list(conf_paths), list(conf_energies), list(calc_logs) #tubles to lists
     mol_files = [os.path.join(conf_path, conf_name+'_gfn'+method.replace(' ', '') + '_opt.sdf') for conf_path, conf_name in zip(conf_paths,conf_names)] #list of paths to optimized structures in .sdf format
 
     # Find only unique conformers
-    conf_names, conf_complex_mols, conf_paths, conf_energies = zip(*molfmt.find_unique_confs(list(zip(conf_names, conf_complex_mols, conf_paths, conf_energies)), mol_files, threshold=0.5)) #find unique conformers
-    conf_names, conf_complex_mols, conf_paths, conf_energies = list(conf_names), list(conf_complex_mols), list(conf_paths), list(conf_energies) #tubles to lists
+    conf_names, conf_complex_mols, conf_paths, conf_energies, calc_logs = zip(*molfmt.find_unique_confs(list(zip(conf_names, conf_complex_mols, conf_paths, conf_energies, calc_logs)), mol_files, threshold=0.5)) #find unique conformers
+    conf_names, conf_complex_mols, conf_paths, conf_energies, calc_logs = list(conf_names), list(conf_complex_mols), list(conf_paths), list(conf_energies), list(calc_logs) #tubles to lists
 
-    return conf_names, conf_complex_mols, conf_paths, conf_energies
+    return conf_names, conf_complex_mols, conf_paths, conf_energies, calc_logs
 
 
 def calculateEnergy(args):
@@ -132,27 +134,34 @@ def calculateEnergy(args):
     conf_names_copy = copy.deepcopy(conf_names)
 
     # Run a GFN-FF optimization - Prescreening
-    conf_names, conf_mols, conf_paths, conf_energies = confsearch_xTB(conf_mols, conf_names, chrg=chrg, spin=spin, method='ff', solvent=solvent, conf_cutoff=10, precalc_path=None)
+    conf_names, conf_mols, conf_paths, conf_energies, calc_logs = confsearch_xTB(conf_mols, conf_names, chrg=chrg, spin=spin, method='ff', solvent=solvent, conf_cutoff=10, precalc_path=None)
     
     # Run a GFN?-xTB optimization
-    conf_names, conf_mols, conf_paths, conf_energies = confsearch_xTB(conf_mols, conf_names, chrg=chrg, spin=spin, method=method, solvent=solvent, conf_cutoff=10, precalc_path=conf_paths)
+    conf_names, conf_mols, conf_paths, conf_energies, calc_logs = confsearch_xTB(conf_mols, conf_names, chrg=chrg, spin=spin, method=method, solvent=solvent, conf_cutoff=10, precalc_path=conf_paths)
     
     # Run Orca single point calculations
     final_conf_energies = []
     final_conf_mols = []
-    for conf_name, conf_mol, conf_path, conf_energy in zip(conf_names, conf_mols, conf_paths, conf_energies):
+    final_conf_calc_logs = []
+    for conf_name, conf_mol, conf_path, conf_energy, calc_log in zip(conf_names, conf_mols, conf_paths, conf_energies, calc_logs):
         # if conf_energy != 60000.0: # do single point calculations on all unique conformers
         #     conf_energy = run_orca.run_orca('xtbopt.xyz', chrg, spin, conf_path, ncores=num_cpu_single, mem=(int(mem_gb)/2)*1000, optimize=True)
         final_conf_energies.append(conf_energy)
         final_conf_mols.append(conf_mol)
+        final_conf_calc_logs.append(calc_log)
     
     # Get only the lowest energy conformer
     minE_index = np.argmin(final_conf_energies)
+    
     best_conf_mol = final_conf_mols[minE_index]
+    
     best_conf_energy = final_conf_energies[minE_index]
-    if best_conf_energy != 60000.0:
-        best_conf_energy = run_orca.run_orca('xtbopt.xyz', chrg, spin, conf_paths[minE_index], ncores=num_cpu_single, mem=(int(mem_gb)/2)*1000, optimize=False) # comment when doing single point calculations on all unique conformers, otherwise this runs a Orca single point calculation on the lowest xTB energy conformer
+    # if best_conf_energy != 60000.0:
+    #     best_conf_energy = run_orca.run_orca('xtbopt.xyz', chrg, spin, conf_paths[minE_index], ncores=num_cpu_single, mem=(int(mem_gb)/2)*1000, optimize=False) # comment when doing single point calculations on all unique conformers, otherwise this runs a Orca single point calculation on the lowest xTB energy conformer
+    
+    best_conf_calc_log = final_conf_calc_logs[minE_index]
 
+    
     ### START - CLEAN UP ###
     for conf_name in conf_names_copy:
 
@@ -186,7 +195,7 @@ def calculateEnergy(args):
                     os.remove(f'{folder_path}/{file_remove}')
     ### END - CLEAN UP ###
 
-    return best_conf_energy, best_conf_mol
+    return best_conf_energy, best_conf_mol, best_conf_calc_log
 
 
 
@@ -244,13 +253,17 @@ def calc_MAA_and_MCA(reac_smis: str, name: str):
         results = executor.map(calculateEnergy, args)
 
     reac_energies = []
+    reac_calc_logs = []
     prod_energies = []
+    prod_calc_logs = []
     for i, result in enumerate(results):
-        best_conf_energy, _ = result
+        best_conf_energy, best_conf_mol, best_conf_calc_log = result
         if i < len(reac_mols):
             reac_energies.append(best_conf_energy)
+            reac_calc_logs.append(best_conf_calc_log)
         else:
             prod_energies.append(best_conf_energy)
+            prod_calc_logs.append(best_conf_calc_log)
     
     if len(prod_energies) != sum(prod_amounts):
         raise RuntimeError('WARNING! One or several calculations failed: prod_energies != sum(prod_amounts)')
@@ -258,7 +271,9 @@ def calc_MAA_and_MCA(reac_smis: str, name: str):
 
     # Calculate methyl anion affinities (MAAs) and methyl cation affinities (MCAs)  
     MAA_values = [[] for _ in range(len(reac_mols))]
+    MAA_calc_logs = [[] for _ in range(len(reac_mols))]
     MCA_values = [[] for _ in range(len(reac_mols))]
+    MCA_calc_logs = [[] for _ in range(len(reac_mols))]
 
     # methyl_anion_ref = -10299.839324620309  # kJ/mol. GFN1-xTB ALPBsolvent DMSO: -3.923001615610 Eh = -10299.839324620309 kJ/mol.
     # methyl_cation_ref = -8328.781129518116 # kJ/mol. GFN1-xTB ALPBsolvent DMSO: -3.172265197289 Eh = -8328.781129518116 kJ/mol.
@@ -267,23 +282,32 @@ def calc_MAA_and_MCA(reac_smis: str, name: str):
     methyl_anion_ref = -104803.89889591146  # kJ/mol. Orca OPT NumFreq r2SCAN-3c SMDsolvent DMSO on GFN1-xTB ALPBsolvent DMSO geometry: -39.91769694 Eh = -104803.89889591146 kJ/mol.
     methyl_cation_ref = -103897.65006587801 # kJ/mol. Orca OPT NumFreq r2SCAN-3c SMDsolvent DMSO on GFN1-xTB ALPBsolvent DMSO geometry: -39.57252499 Eh = -103897.65006587801 kJ/mol.
 
-    it = iter(prod_energies)
-    sliced_prod_energies_list = [list(islice(it, 0, i)) for i in prod_amounts] # all even slices are the MAA energies and all uneven slices are the MCA energies
+
+    sliced_prod_energies_list = [list(islice(iter(prod_energies), 0, i)) for i in prod_amounts] # all even slices are the MAA energies and all uneven slices are the MCA energies
+    sliced_calc_logs = [list(islice(iter(prod_calc_logs), 0, i)) for i in prod_amounts] # all even slices are the MAA calc logs and all uneven slices are the MCA calc logs
     for i, reac_energy in enumerate(reac_energies):
         
-        if reac_energy != 60000.0:
-            MAA_values[i] = [-(prod_energy - (reac_energy + methyl_anion_ref)) if prod_energy != 60000.0 else -np.inf for prod_energy in sliced_prod_energies_list[i*2]]
-            MCA_values[i] = [-(prod_energy - (reac_energy + methyl_cation_ref)) if prod_energy != 60000.0 else -np.inf for prod_energy in sliced_prod_energies_list[i*2+1]]
+        if reac_energy not in [60000.0, 120000.0]:
+            MAA_values[i] = [-(prod_energy - (reac_energy + methyl_anion_ref)) if prod_energy not in [60000.0, 120000.0] else -np.inf for prod_energy in sliced_prod_energies_list[i*2]]
+            MCA_values[i] = [-(prod_energy - (reac_energy + methyl_cation_ref)) if prod_energy not in [60000.0, 120000.0] else -np.inf for prod_energy in sliced_prod_energies_list[i*2+1]]
         else:
             MAA_values[i] = [-np.inf for _ in sliced_prod_energies_list[i*2]]
             MCA_values[i] = [-np.inf for _ in sliced_prod_energies_list[i*2+1]]
+        
+        MAA_calc_logs[i] = [[reac_calc_logs[i], prod_calc_log] for prod_calc_log in sliced_calc_logs[i*2]]
+        MCA_calc_logs[i] = [[reac_calc_logs[i], prod_calc_log] for prod_calc_log in sliced_calc_logs[i*2+1]]
 
 
     ### Draw the output ###
     result_svg = generate_structure(reac_mols, elec_sites_list, MAA_values, nuc_sites_list, MCA_values, molsPerRow=4)
     
+    df_elec = generate_output_tables(reac_mols, elec_names_list, MAA_values, elec_sites_list, MAA_calc_logs, MAA_or_MCA='MAA')
+    df_nuc = generate_output_tables(reac_mols, nuc_names_list, MCA_values, nuc_sites_list, MCA_calc_logs, MAA_or_MCA='MCA')
+
+    result_output = html_output('.'.join(reac_smis), result_svg, df_elec, df_nuc)
+    
     fd = open(f'{base_dir}/calculations/{name}.svg','w')
-    fd.write(result_svg)
+    fd.write(result_output)
     fd.close()
     ### END ###
 
@@ -293,7 +317,7 @@ def calc_MAA_and_MCA(reac_smis: str, name: str):
         print('Electrophilic sites:', '\n', elec_names, '\n', elec_sites, '\n', MAAs)
         print('Nucleophilic sites:', '\n', nuc_names, '\n', nuc_sites, '\n', MCAs)
 
-    return elec_sites_list, elec_names_list, elec_prod_smis_list, MAA_values, nuc_sites_list, nuc_names_list, nuc_prod_smis_list, MCA_values
+    return elec_sites_list, elec_names_list, elec_prod_smis_list, MAA_values, MAA_calc_logs, nuc_sites_list, nuc_names_list, nuc_prod_smis_list, MCA_values, MCA_calc_logs
 
 
 def control_calcs(df):
@@ -302,26 +326,30 @@ def control_calcs(df):
     df['elec_names'] = pd.Series(dtype='object')
     df['elec_prod_smis'] = pd.Series(dtype='object')
     df['MAA_values'] = pd.Series(dtype='object')
+    df['MAA_calc_logs'] = pd.Series(dtype='object')
     df['nuc_sites'] = pd.Series(dtype='object')
     df['nuc_names'] = pd.Series(dtype='object')
     df['nuc_prod_smis'] = pd.Series(dtype='object')
     df['MCA_values'] = pd.Series(dtype='object')
+    df['MCA_calc_logs'] = pd.Series(dtype='object')
     for idx, row in df.iterrows():
 
         name = row['name']
         reac_smis = row['smiles'] #row['canon_smiles'], row['smiles']
         
         ### RUN CALCULATIONS ###
-        elec_sites, elec_names, elec_prod_smis, MAA_values, nuc_sites, nuc_names, nuc_prod_smis, MCA_values = calc_MAA_and_MCA(reac_smis, name)
+        elec_sites, elec_names, elec_prod_smis, MAA_values, MAA_calc_logs, nuc_sites, nuc_names, nuc_prod_smis, MCA_values, MCA_calc_logs = calc_MAA_and_MCA(reac_smis, name)
         
         df.at[idx, 'elec_sites'] = elec_sites
         df.at[idx, 'elec_names'] = elec_names
         df.at[idx, 'elec_prod_smis'] = elec_prod_smis
         df.at[idx, 'MAA_values'] = MAA_values
+        df.at[idx, 'MAA_calc_logs'] = MAA_calc_logs
         df.at[idx, 'nuc_sites'] = nuc_sites
         df.at[idx, 'nuc_names'] = nuc_names
         df.at[idx, 'nuc_prod_smis'] = nuc_prod_smis
         df.at[idx, 'MCA_values'] = MCA_values
+        df.at[idx, 'MCA_calc_logs'] = MCA_calc_logs
 
     return df
 

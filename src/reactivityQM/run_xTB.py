@@ -83,24 +83,11 @@ def run_xTB(args): #(xyzfile, molecule, chrg=0, spin=0, method=' 1', solvent='',
     proc = subprocess.Popen(cmd.split(), stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, cwd=mol_calc_path)
     output = proc.communicate()[0]
 
+
     # Save calc output
     with open(f'{mol_calc_path}/{name}.xtbout', 'w') as f:
         f.write(output)
 
-    # Convert .xyz to .sdf using and check input/output connectivity
-    if os.path.isfile(f'{mol_calc_path}/xtbopt.xyz'):
-        molfmt.convert_xyz_to_sdf(start_structure_xyz, start_structure_sdf, chrg=chrg) #convert initial structure
-        molfmt.convert_xyz_to_sdf(f'{mol_calc_path}/xtbopt.xyz', final_structure_sdf, chrg=chrg) #convert optimized structure
-    else:
-        print(f'WARNING! xtbopt.xyz was not created => calc failed for {xyzfile}')
-        energy = 120000.0 # energy is larger when convergence failure such that find_unique_confs does not to fail since .sdf is not created.
-        return energy, mol_calc_path
-    
-    same_structure = molfmt.compare_sdf_structure(Chem.MolToMolBlock(molecule), final_structure_sdf, molblockStart=True)
-    if not same_structure:
-        print(f'WARNING! Input/output mismatch for {xyzfile}')
-        energy = 60000.0
-        return energy, mol_calc_path
 
     # Search for the molecular energy
     for i, line in enumerate(output.split('\n')):
@@ -113,4 +100,21 @@ def run_xTB(args): #(xyzfile, molecule, chrg=0, spin=0, method=' 1', solvent='',
         print(e, xyzfile)
         energy = 60000.0
 
-    return energy, mol_calc_path
+
+    # Convert .xyz to .sdf using and check input/output connectivity
+    if os.path.isfile(f'{mol_calc_path}/xtbopt.xyz'):
+        smi_initi = molfmt.convert_xyz_to_sdf(start_structure_xyz, start_structure_sdf, chrg=chrg) #convert initial structure
+        smi_final = molfmt.convert_xyz_to_sdf(f'{mol_calc_path}/xtbopt.xyz', final_structure_sdf, chrg=chrg) #convert optimized structure
+    else:
+        print(f'WARNING! xtbopt.xyz was not created => calc failed for {xyzfile}')
+        energy = 120000.0 #energy is larger when convergence failure such that find_unique_confs does not to fail since .sdf is not created.
+        return energy, mol_calc_path, 'xtbopt.xyz was not created'
+    
+    same_structure = molfmt.compare_sdf_structure(Chem.MolToMolBlock(molecule), final_structure_sdf, molblockStart=True)
+    if not same_structure:
+        print(f'WARNING! Input/output mismatch for {xyzfile}')
+        # energy = 60000.0 #comment to allow the calculated energy to be returned when input/output mismatch
+        return energy, mol_calc_path, smi_final
+
+    
+    return energy, mol_calc_path, None
