@@ -23,21 +23,21 @@ OBS!
 
 ## Usage
 
-An example of usage via CLI command (takes ~10 min. on 2x16 CPU cores):
+An example of usage via CLI command:
 
     # Create predictions for a test molecule (OBS! Only names without "_" are allowed):
-    python src/reactivityQM/calculator.py --smi 'C[C+:20](C)CC(C)(C)C1=C(C=CC(=C1)Br)[OH:10]' --name 'testmol' &
+    python src/reactivityQM/calculator.py --smi 'C[C+:20](C)CC(C)(C)C1=C(C=CC(=C1)Br)[OH:10]' --name 'testmols' &
     
 
-The calculations are now saved in a "./calculations" folder and a graphical output of the results (in .html format) are found in a "results" folder.
-The graphical output presents the user with the most reactive electrophilic and nucleophilic sites highlighted.
+The calculations are now saved in a "./calculations" folder along with a graphical output of the results (in .html format).
+The graphical output presents the user with the most electrophilic and nucleophilic sites within 3 kcal/mol ≈ 12.6 kJ/mol being highlighted.
 
-An example of using ReactiviQM on a dataframe (takes ~20 min. on 16 CPU cores):
+An example of using ReactiviQM on a dataframe:
 
-    # Create predictions for a small dataset (data/xxx/xxx.pkl):
-    python src/reactivityQM/calculator.py
+    # Create predictions for a small dataset (example/testmols.csv):
+    python src/reactivityQM/calculator.py -b example/testmols.csv
 
-The calculations are now saved in a "./calculations" folder, and a dataframe containing the results are found in "submitit_reactivityQM/*_result.pkl"
+The calculations are now saved in a "./calculations" folder, and a dataframe containing the results are found in "submitit_reactivityQM/testmols/*_result.pkl"
 
 
 ## Citation 

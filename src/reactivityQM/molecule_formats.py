@@ -51,7 +51,7 @@ def convert_xyz_to_sdf(xyzfile, sdffile, chrg=None):
     writer.write(rdkit_mol)
     writer.close()
 
-    return Chem.MolToSmiles(Chem.SDMolSupplier(sdffile)[0])
+    return
 
 
 def get_bonds(sdf_file):

@@ -156,8 +156,8 @@ def calculateEnergy(args):
     best_conf_mol = final_conf_mols[minE_index]
     
     best_conf_energy = final_conf_energies[minE_index]
-    # if best_conf_energy != 60000.0:
-    #     best_conf_energy = run_orca.run_orca('xtbopt.xyz', chrg, spin, conf_paths[minE_index], ncores=num_cpu_single, mem=(int(mem_gb)/2)*1000, optimize=False) # comment when doing single point calculations on all unique conformers, otherwise this runs a Orca single point calculation on the lowest xTB energy conformer
+    if best_conf_energy != 60000.0:
+        best_conf_energy = run_orca.run_orca('xtbopt.xyz', chrg, spin, conf_paths[minE_index], ncores=num_cpu_single, mem=(int(mem_gb)/2)*1000, optimize=False) # comment when doing single point calculations on all unique conformers, otherwise this runs a Orca single point calculation on the lowest xTB energy conformer
     
     best_conf_calc_log = final_conf_calc_logs[minE_index]
 
@@ -299,14 +299,14 @@ def calc_MAA_and_MCA(reac_smis: str, name: str):
 
 
     ### Draw the output ###
-    result_svg = generate_structure(reac_mols, elec_sites_list, MAA_values, nuc_sites_list, MCA_values, molsPerRow=4)
-    
+    result_svg = generate_structure(reac_mols, elec_sites_list, MAA_values, nuc_sites_list, MCA_values, molsPerRow=3)
+
     df_elec = generate_output_tables(reac_mols, elec_names_list, MAA_values, elec_sites_list, MAA_calc_logs, MAA_or_MCA='MAA')
     df_nuc = generate_output_tables(reac_mols, nuc_names_list, MCA_values, nuc_sites_list, MCA_calc_logs, MAA_or_MCA='MCA')
 
     result_output = html_output('.'.join(reac_smis), result_svg, df_elec, df_nuc)
     
-    fd = open(f'{base_dir}/calculations/{name}.svg','w')
+    fd = open(f'{base_dir}/calculations/{name}.html','w')
     fd.write(result_output)
     fd.close()
     ### END ###
@@ -387,7 +387,7 @@ if __name__ == "__main__":
 
         ### Batch JOB ###
         df = pd.read_csv(os.path.join(execution_path, args.batch), sep=',', encoding= 'unicode_escape') # read .csv file that contains the columns: "name" and "smiles"
-        df = df.head(1)
+        # df = df.head(1)
         
         jobs = []
         with executor.batch():

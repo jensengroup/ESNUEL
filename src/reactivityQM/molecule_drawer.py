@@ -94,11 +94,11 @@ def draw2d(rdkit_mol, elec_sites, MAA_values, top_score_elec, nuc_sites, MCA_val
     return d2d.GetDrawingText()
 
 
-def generate_structure(rdkit_mols, elec_sites_list, MAA_values_list, nuc_sites_list, MCA_values_list, molsPerRow=4):
+def generate_structure(rdkit_mols, elec_sites_list, MAA_values_list, nuc_sites_list, MCA_values_list, molsPerRow=3):
 
     global subImgSize
 
-    cutoff = 12.6 # kJ/mol (3 kcal/mol = 12.6 kJ/mol)
+    cutoff = 12.6 # kJ/mol (3 kcal/mol = 12.6 kJ/mol) <-- Highlight atoms within this cutoff!
     top_score_elec = max(np.concatenate(MAA_values_list), default=np.inf) - cutoff # all electrophilic sites within this value are highlighted
     top_score_nuc = max(np.concatenate(MCA_values_list), default=np.inf) - cutoff # all nucleophilic sites within this value are highlighted
 
@@ -147,6 +147,7 @@ def generate_structure(rdkit_mols, elec_sites_list, MAA_values_list, nuc_sites_l
 
 def generate_output_tables(rdkit_mols, names_list, values_list, sites_list, calc_logs, MAA_or_MCA='MAA'):
     
+    names_list_new = []
     values_list_new = []
     sites_list_new = []
     calc_logs_new = []
@@ -158,26 +159,20 @@ def generate_output_tables(rdkit_mols, names_list, values_list, sites_list, calc
                 site = sites_list[i][idx] # the atomic index of the located site
                 identical_sites = find_identical_atoms(rdkit_mols[i], [site])
                 for site in identical_sites:
-                    
-                    values_list_new.append(val)
-                    
+                  
                     if len(rdkit_mols) > 1: # if more than one molecule add molecule ID to Atom ID
                         sites_list_new.append(f'{i+1}.{site}')
                     else:
                         sites_list_new.append(f'{site}')
+                    
+                    values_list_new.append(val)
 
-                    calc_logs_new.append(",".join([Chem.MolToSmiles(Chem.RemoveHs(Chem.MolFromSmiles(smi))) if smi not in [None, 'xtbopt.xyz was not created'] else str(smi) for smi in calc_logs[i][idx]]))
-    
+                    calc_logs_new.append(", ".join([f'<a href="{calc_log[1]}">{calc_log[0]}</a>' for calc_log in calc_logs[i][idx]]))
 
-    if MAA_or_MCA == 'MAA':
+                    names_list_new.append(names_list[i][idx].replace('_', ' ').capitalize())
     
-        dict_table = {'Atom ID': sites_list_new, 'MAA Value [kJ/mol]': values_list_new, 'Error Log (Reactant, Product)': calc_logs_new, 'Type': [n.replace('_', ' ').capitalize() for n in np.concatenate(names_list)]}
-        df_table = pd.DataFrame(dict_table).sort_values(by=['MAA Value [kJ/mol]'], ascending=False)
-    
-    elif MAA_or_MCA == 'MCA':
-    
-        dict_table = {'Atom ID': sites_list_new, 'MCA Value [kJ/mol]': values_list_new, 'Error Log (Reactant, Product)': calc_logs_new, 'Type': [n.replace('_', ' ').capitalize() for n in np.concatenate(names_list)]}
-        df_table = pd.DataFrame(dict_table).sort_values(by=['MCA Value [kJ/mol]'], ascending=False)
+    dict_table = {'Atom ID': sites_list_new, f'{MAA_or_MCA} Value [kJ/mol]': values_list_new, 'Error Log (Reactant, Product)': calc_logs_new, 'Type': names_list_new}
+    df_table = pd.DataFrame(dict_table).sort_values(by=[f'{MAA_or_MCA} Value [kJ/mol]'], ascending=False)
     
     return df_table
 
@@ -185,8 +180,8 @@ def generate_output_tables(rdkit_mols, names_list, values_list, sites_list, calc
 def html_output(rdkit_smiles, svg_file, df_elec, df_nuc):
 
 
-    html_table_elec = df_elec.to_html(index=False, decimal='.', float_format='%.2f').replace('<table border="1" class="dataframe">', '<table>\n<caption class="caption">Electrophilicity (MAA)</caption>').replace('<tr style="text-align: right;">', '<tr>')
-    html_table_nuc = df_nuc.to_html(index=False, decimal='.', float_format='%.2f').replace('<table border="1" class="dataframe">', '<table>\n<caption class="caption">Nucleophilicity (MCA)</caption>').replace('<tr style="text-align: right;">', '<tr>')
+    html_table_elec = df_elec.to_html(index=False, decimal='.', float_format='%.2f', escape=False).replace('<table border="1" class="dataframe">', '<table>\n<caption class="caption">Electrophilicity (MAA)</caption>').replace('<tr style="text-align: right;">', '<tr>')
+    html_table_nuc = df_nuc.to_html(index=False, decimal='.', float_format='%.2f', escape=False).replace('<table border="1" class="dataframe">', '<table>\n<caption class="caption">Nucleophilicity (MCA)</caption>').replace('<tr style="text-align: right;">', '<tr>')
 
     html_head = """
             <!DOCTYPE html>
@@ -289,6 +284,15 @@ def html_output(rdkit_smiles, svg_file, df_elec, df_nuc):
                 border-top-left-radius: 5px;
                 border-top-right-radius: 5px;
                 }
+                
+                a:link {
+                color: black;
+                }
+
+                a:hover {
+                color: hotpink;
+                }
+
             </style>
             </head>"""
     
