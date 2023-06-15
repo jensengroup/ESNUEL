@@ -282,9 +282,10 @@ def calc_MAA_and_MCA(reac_smis: str, name: str):
     methyl_anion_ref = -104803.89889591146  # kJ/mol. Orca OPT NumFreq r2SCAN-3c SMDsolvent DMSO on GFN1-xTB ALPBsolvent DMSO geometry: -39.91769694 Eh = -104803.89889591146 kJ/mol.
     methyl_cation_ref = -103897.65006587801 # kJ/mol. Orca OPT NumFreq r2SCAN-3c SMDsolvent DMSO on GFN1-xTB ALPBsolvent DMSO geometry: -39.57252499 Eh = -103897.65006587801 kJ/mol.
 
-
-    sliced_prod_energies_list = [list(islice(iter(prod_energies), 0, i)) for i in prod_amounts] # all even slices are the MAA energies and all uneven slices are the MCA energies
-    sliced_calc_logs = [list(islice(iter(prod_calc_logs), 0, i)) for i in prod_amounts] # all even slices are the MAA calc logs and all uneven slices are the MCA calc logs
+    it_prod_energies = iter(prod_energies)
+    sliced_prod_energies_list = [list(islice(it_prod_energies, 0, i)) for i in prod_amounts] # all even slices are the MAA energies and all uneven slices are the MCA energies
+    it_prod_calc_logs = iter(prod_calc_logs)
+    sliced_prod_calc_logs_list = [list(islice(it_prod_calc_logs, 0, i)) for i in prod_amounts] # all even slices are the MAA calc logs and all uneven slices are the MCA calc logs
     for i, reac_energy in enumerate(reac_energies):
         
         if reac_energy not in [60000.0, 120000.0]:
@@ -294,8 +295,8 @@ def calc_MAA_and_MCA(reac_smis: str, name: str):
             MAA_values[i] = [-np.inf for _ in sliced_prod_energies_list[i*2]]
             MCA_values[i] = [-np.inf for _ in sliced_prod_energies_list[i*2+1]]
         
-        MAA_calc_logs[i] = [[reac_calc_logs[i], prod_calc_log] for prod_calc_log in sliced_calc_logs[i*2]]
-        MCA_calc_logs[i] = [[reac_calc_logs[i], prod_calc_log] for prod_calc_log in sliced_calc_logs[i*2+1]]
+        MAA_calc_logs[i] = [[reac_calc_logs[i], prod_calc_log] for prod_calc_log in sliced_prod_calc_logs_list[i*2]]
+        MCA_calc_logs[i] = [[reac_calc_logs[i], prod_calc_log] for prod_calc_log in sliced_prod_calc_logs_list[i*2+1]]
 
 
     ### Draw the output ###
