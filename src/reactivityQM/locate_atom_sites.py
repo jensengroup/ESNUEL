@@ -77,7 +77,7 @@ n_smirks_list = ['[OX2:1]([#6;!$(C([OX2])[#7,#8,#15,#16,F,Cl,Br,I]);!$([#6]=[#8]
                 '[*;!$([!X4;!#1;!#6:1])+0:1]#[*+1:2]>>[CH3][*:1]=[*+2:2]', # added to capture additional sites
                 '[!X4;!#1;!#6:1]>>[CH3][*+1:1]' # added to capture additional sites
                 ]
-# ### BEGIN SMe ###
+# ### BEGIN SMe (OBS! Require changes to run_rxn() in molecule_formats.py) ###
 # n_smirks_list = ['[OX2:1]([#6;!$(C([OX2])[#7,#8,#15,#16,F,Cl,Br,I]);!$([#6]=[#8]):2])[#6;!$(C([OX2])[#7,#8,#15,#16]);!$([#6]=[#8]):3]>>[CH3][#16X2][OX3+:1]([*:2])[*:3]', 
 #                 '[OX1H0:1]=[#6X3:2]([#6;!$([CX3]=[CX3;!R]):3])[#6;!$([CX3]=[CX3;!R]):4]>>[CH3][#16X2][OX2H0:1][#6X3+:2]([*:3])[*:4]',
 #                 '[OX1:1]=[CX3;$([CX3][#6]),$([CX3H]):2][#7X3;!R:3]>>[CH3][#16X2][OX2:1][CX3:2]=[#7X3+:3]', 
@@ -141,7 +141,7 @@ e_smirks_list = ['[#6:1]=[O+;!$([O]~[!#6]);!$([S]*~[#7,#8,#15,#16]):2]>>[CH3][#6
                 '[*+0:1]#[*+0:2]>>[CH3][*:1]=[*-1:2]', # added to capture additional sites
                 '[*+0:1]#[*+1:2]>>[CH3][*:1]=[*+0:2]' # added to capture additional sites
                 ]
-# ### BEGIN SMe ###
+# ### BEGIN SMe (OBS! Require changes to run_rxn() in molecule_formats.py) ###
 # e_smirks_list = ['[#6:1]=[O+;!$([O]~[!#6]);!$([S]*~[#7,#8,#15,#16]):2]>>[CH3][#16X2][#6:1][O+0:2]', 
 #                 '[#6+:1]>>[CH3][#16X2][#6+0:1]', 
 #                 '[#6X3:1](=[OX1:2])([#6;!$([CX3]=[CX3;!R]):3])[#6;!$([CX3]=[CX3;!R]):4]>>[CH3][#16X2][#6X4:1](-[OX1-:2])([*:3])[*:4]', 
