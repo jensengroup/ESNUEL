@@ -38,7 +38,7 @@ An example of usage via CLI command:
 The calculations are now saved in a "./calculations" folder along with a graphical output of the results (in .html format).
 The graphical output presents the user with the most electrophilic and nucleophilic sites within 3 kcal/mol ≈ 12.6 kJ/mol being highlighted.
 
-An example of using ReactiviQM in batch mode:
+An example of using ESNUEL in batch mode:
 
     # Create predictions for a small dataset (example/testmols.csv):
     python src/esnuel/calculator.py -b example/testmols.csv
