@@ -31,7 +31,7 @@ from ase.units import Hartree, mol, kcal, kJ
 import molecule_formats as molfmt
 
 # xTB path and calc setup
-base_dir = os.path.dirname(os.path.realpath(__file__)).replace('/src/reactivityQM', '')
+base_dir = os.path.dirname(os.path.realpath(__file__)).replace('/src/esnuel', '')
 XTBHOME = os.path.join(base_dir, 'dep/xtb-6.5.1')
 XTBPATH = os.path.join(base_dir, 'dep/xtb-6.5.1/share/xtb')
 MANPATH = os.path.join(base_dir, 'dep/xtb-6.5.1/share/man')

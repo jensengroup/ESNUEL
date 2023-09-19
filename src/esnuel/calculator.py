@@ -36,9 +36,9 @@ from rdkit.Chem import AllChem
 # lg.setLevel(RDLogger.CRITICAL)
 
 execution_path = os.getcwd()
-base_dir = os.path.dirname(os.path.realpath(__file__)).replace('/src/reactivityQM', '')
+base_dir = os.path.dirname(os.path.realpath(__file__)).replace('/src/esnuel', '')
 
-os.chdir(os.path.join(base_dir, 'src/reactivityQM')) # change path to make the calculation run
+os.chdir(os.path.join(base_dir, 'src/esnuel')) # change path to make the calculation run
 from locate_atom_sites import find_electrophilic_sites_and_generate_MAAproducts, find_nucleophilic_sites_and_generate_MCAproducts
 from molecule_drawer import generate_structure, generate_output_tables, html_output
 import molecule_formats as molfmt
@@ -59,7 +59,7 @@ def parse_args():
     parser.add_argument('-s', '--smiles', default='C[C+:20](C)CC(C)(C)C1=C(C=CC(=C1)Br)[OH:10]',
                         help='SMILES input for regioselectivity predictions')
     parser.add_argument('-n', '--name', default='testmol', help='The name of the molecule. Only names without "_" are allowed.')
-    parser.add_argument('-b', '--batch', default=None, help='Path to .csv file for running batched calculations e.g. --> python src/reactivityQM/calculator.py -b example/testmols.csv')
+    parser.add_argument('-b', '--batch', default=None, help='Path to .csv file for running batched calculations e.g. --> python src/esnuel/calculator.py -b example/testmols.csv')
     return parser.parse_args()
 
 
@@ -365,7 +365,7 @@ if __name__ == "__main__":
 
     executor = submitit.AutoExecutor(folder=os.path.join(base_dir, f'submitit_results/{args.name}'))
     executor.update_parameters(
-        name="reactivityQM",
+        name="esnuel",
         cpus_per_task=int(num_cpu_parallel*num_cpu_single),
         mem_gb=int(mem_gb),
         timeout_min=6000,
