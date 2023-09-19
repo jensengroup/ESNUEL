@@ -2,7 +2,8 @@
   <img src="image/logo.png"/>
 </p>
 
-# ESNUEL
+---
+
 ESNUEL (**ES**timating **NU**cleophilicity and **EL**ectrophilicity) is a fully automated quantum chemistry (QM)-based workflow that automatically identifies nucleophilic and electrophilic sites and computes methyl cation affinities (MCAs) and methyl anion affinities (MAAs) to estimate nucleophilicity and electrophilicity, respectively.
 
 [Try ESNUEL here!](http://esnuel.org)
