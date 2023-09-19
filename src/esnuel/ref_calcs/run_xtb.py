@@ -8,7 +8,7 @@ from rdkit import Chem
 from ase.units import Hartree, mol, kcal, kJ
 
 # xTB path and calc setup
-path = os.path.dirname(os.path.realpath(__file__)).replace('/src/uniRXNpred/ref_calcs', '')
+path = os.path.dirname(os.path.realpath(__file__)).replace('/src/esnuel/ref_calcs', '')
 XTBHOME = os.path.join(path, 'dep/xtb-6.5.1')
 XTBPATH = os.path.join(path, 'dep/xtb-6.5.1/share/xtb')
 MANPATH = os.path.join(path, 'dep/xtb-6.5.1/share/man')
