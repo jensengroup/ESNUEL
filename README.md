@@ -48,14 +48,14 @@ The calculations are now saved in a "./calculations" folder, and a dataframe con
 
 ## Citation 
 
-Our work is available as a preprint on [ChemRxiv](http://doi.org/10.26434/chemrxiv-2022-9pslv), where more information is available. 
+Our work is available as a preprint on [ChemRxiv](http://doi.org/), where more information is available. 
 ```
 @article{ree2023esnuel,
-  doi = {10.26434/chemrxiv-2022-9pslv},
-  url = {https://doi.org/10.26434/chemrxiv-2022-9pslv},
+  doi = {},
+  url = {https://doi.org/},
   year = {2023},
   month = oct,
   author = {Nicolai Ree and Andreas H. G\"{o}ller and Jan H. Jensen},
-  title = {Quantifying Electrophilicity and Nucleophilicity with Automated Quantum Chemistry and its Applications to Retrosynthesis and Covalent Inhibitors}
+  title = {Automated Quantum Chemistry for Estimating Nucleophilicity and Electrophilicity with Applications to Retrosynthesis and Covalent Inhibitors}
 }
 ```
