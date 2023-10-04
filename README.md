@@ -48,11 +48,11 @@ The calculations are now saved in a "./calculations" folder, and a dataframe con
 
 ## Citation 
 
-Our work is available as a preprint on [ChemRxiv](http://doi.org/), where more information is available. 
+Our work is available as a preprint on [ChemRxiv](https://doi.org/10.26434/chemrxiv-2023-pd395), where more information is available. 
 ```
 @article{ree2023esnuel,
-  doi = {},
-  url = {https://doi.org/},
+  doi = {10.26434/chemrxiv-2023-pd395},
+  url = {https://doi.org/10.26434/chemrxiv-2023-pd395},
   year = {2023},
   month = oct,
   author = {Nicolai Ree and Andreas H. G\"{o}ller and Jan H. Jensen},
