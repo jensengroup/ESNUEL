@@ -12,7 +12,7 @@ ESNUEL (**ES**timating **NU**cleophilicity and **EL**ectrophilicity) is a fully 
 
 For the installation, we recommend using `conda` to get all the necessary dependencies:
 
-    conda env create -f environment.yml && conda activate ESNUEL
+    conda env create -f environment.yml && conda activate esnuel
 
 
 Then download the binaries of xtb version 6.5.1:
