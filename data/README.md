@@ -1,5 +1,5 @@
 # This folder contains:
-  1) "from_sources": The raw data from different sources, which have been used to design and evaluate ESNUEL.
+  1) "from_sources": The raw data from different sources used to design and evaluate ESNUEL.
   2) "results": The final results of ESNUEL along with the scripts used to generate the figures in our paper.
 
 
