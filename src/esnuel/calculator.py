@@ -55,17 +55,21 @@ def parse_args():
     """
     Argument parser so this can be run from the command line
     """
-    parser = argparse.ArgumentParser(description='Run regioselectivity predictions from the command line')
-    parser.add_argument('-s', '--smiles', default='C[C+:20](C)CC(C)(C)C1=C(C=CC(=C1)Br)[OH:10]',
-                        help='SMILES input for regioselectivity predictions')
-    parser.add_argument('-n', '--name', default='testmol', help='The name of the molecule. Only names without "_" are allowed.')
+    parser = argparse.ArgumentParser(description='Run ESNUEL from the command line')
+    parser.add_argument('-s', '--smiles', default='C[C+:20](C)CC(C)(C)C1=C(C=CC(=C1)Br)[OH:10]', type=str,
+                        help='SMILES input to ESNUEL (only used, if you do not run in batch mode)')
+    parser.add_argument('-n', '--name', default='testmol', type=str, help='The name of the molecule or job depending on CLI or batch mode. Only names without "_" are allowed.')
     parser.add_argument('-b', '--batch', default=None, help='Path to .csv file for running batched calculations e.g. --> python src/esnuel/calculator.py -b example/testmols.csv')
+    parser.add_argument('--partition', default='kemi1', type=str, help='The SLURM partition that you submit to')
+    parser.add_argument('--parallel_calcs', default=2, type=int, help='The number of parallel molecule calculations (the total number of CPU cores requested for each SLURM job = parallel_calcs*cpus_per_calc)')
+    parser.add_argument('--cpus_per_calc', default=4, type=int, help='The number of cpus per molecule calculation (the total number of CPU cores requested for each SLURM job = parallel_calcs*cpus_per_calc)')
+    parser.add_argument('--mem_gb', default=20, type=int, help='The total memory usage in gigabyte (GB) of each SLURM job')
+    parser.add_argument('--timeout_min', default=6000, type=int, help='The total allowed duration of a SLURM job in minutes')
+    parser.add_argument('--slurm_array_parallelism', default=25, type=int, help='The maximum number of parallel SLURM jobs to run simultaneously (taking one molecule at a time in batch mode)')
     return parser.parse_args()
 
 
 def confsearch_xTB(conf_complex_mols, conf_names, chrg=0, spin=0, method='ff', solvent='', conf_cutoff=10, precalc_path=None):
-    
-    global num_cpu_single
     
     # Run xTB optimizations  
     confsearch_args = []
@@ -75,7 +79,7 @@ def confsearch_xTB(conf_complex_mols, conf_names, chrg=0, spin=0, method='ff', s
         else:
             confsearch_args.append((conf_names[i]+'_gfn'+method.replace(' ', '')+'.xyz', conf_complex_mols[i], chrg, spin, method, solvent, True, None))
 
-    with ThreadPoolExecutor(max_workers=num_cpu_single) as executor:
+    with ThreadPoolExecutor(max_workers=parse_args().cpus_per_calc) as executor:
         results = executor.map(run_xTB.run_xTB, confsearch_args)
 
     conf_energies = []
@@ -110,8 +114,6 @@ def calculateEnergy(args):
     return: energy [kcal/mol]
     """
     
-    global num_cpu_single
-
     # Calculation settings
     rdkit_mol, name = args
     method=' 1'  # <--- change the method for accurate calculations ('ff', ' 0', ' 1', ' 2'). Remember to change the references, methyl_anion_ref and methyl_cation_ref, if method this is changed!
@@ -145,7 +147,7 @@ def calculateEnergy(args):
     final_conf_calc_logs = []
     for conf_name, conf_mol, conf_path, conf_energy, calc_log in zip(conf_names, conf_mols, conf_paths, conf_energies, calc_logs):
         # if conf_energy != 60000.0: # do single point calculations on all unique conformers
-        #     conf_energy = run_orca.run_orca('xtbopt.xyz', chrg, spin, conf_path, ncores=num_cpu_single, mem=(int(mem_gb)/2)*1000, optimize=True)
+        #     conf_energy = run_orca.run_orca('xtbopt.xyz', chrg, spin, conf_path, ncores=parse_args().cpus_per_calc, mem=(int(parse_args().mem_gb)/2)*1000, optimize=True)
         final_conf_energies.append(conf_energy)
         final_conf_mols.append(conf_mol)
         final_conf_calc_logs.append(calc_log)
@@ -157,7 +159,7 @@ def calculateEnergy(args):
     
     best_conf_energy = final_conf_energies[minE_index]
     if best_conf_energy != 60000.0:
-        best_conf_energy = run_orca.run_orca('xtbopt.xyz', chrg, spin, conf_paths[minE_index], ncores=num_cpu_single, mem=(int(mem_gb)/2)*1000, optimize=False) # comment when doing single point calculations on all unique conformers, otherwise this runs a Orca single point calculation on the lowest xTB energy conformer
+        best_conf_energy = run_orca.run_orca('xtbopt.xyz', chrg, spin, conf_paths[minE_index], ncores=parse_args().cpus_per_calc, mem=(int(parse_args().mem_gb)/2)*1000, optimize=False) # comment when doing single point calculations on all unique conformers, otherwise this runs a Orca single point calculation on the lowest xTB energy conformer
     
     best_conf_calc_log = final_conf_calc_logs[minE_index]
 
@@ -200,8 +202,6 @@ def calculateEnergy(args):
 
 
 def calc_MAA_and_MCA(reac_smis: str, name: str):
-
-    global num_cpu_parallel
 
     reac_smis = reac_smis.split('.')
     reac_mols = [Chem.MolFromSmiles(smi) for smi in reac_smis]
@@ -249,7 +249,7 @@ def calc_MAA_and_MCA(reac_smis: str, name: str):
     all_mols = reac_mols + prod_mols
     all_names = reac_names + prod_names
     args = [(rdkit_mol, name) for rdkit_mol, name in zip(all_mols, all_names)]
-    with ThreadPoolExecutor(max_workers=num_cpu_parallel) as executor:
+    with ThreadPoolExecutor(max_workers=parse_args().parallel_calcs) as executor:
         results = executor.map(calculateEnergy, args)
 
     reac_energies = []
@@ -366,11 +366,11 @@ if __name__ == "__main__":
     executor = submitit.AutoExecutor(folder=os.path.join(base_dir, f'submitit_results/{args.name}'))
     executor.update_parameters(
         name="esnuel",
-        cpus_per_task=int(num_cpu_parallel*num_cpu_single),
-        mem_gb=int(mem_gb),
-        timeout_min=6000,
-        slurm_partition="kemi1",
-        slurm_array_parallelism=25,
+        cpus_per_task=int(args.parallel_calcs*args.cpus_per_calc),
+        mem_gb=int(args.mem_gb),
+        timeout_min=int(args.timeout_min),
+        slurm_partition=int(args.partition),
+        slurm_array_parallelism=int(args.slurm_array_parallelism),
     )
     print(executor)
 
@@ -387,7 +387,7 @@ if __name__ == "__main__":
     else:
 
         ### Batch JOB ###
-        df = pd.read_csv(os.path.join(execution_path, args.batch), sep=',', encoding= 'unicode_escape') # read .csv file that contains the columns: "name" and "smiles"
+        df = pd.read_csv(os.path.join(execution_path, args.batch), sep=',', encoding='unicode_escape') # read .csv file that contains the columns: "name" and "smiles"
         # df = df.head(1)
         
         jobs = []
