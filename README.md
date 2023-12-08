@@ -43,19 +43,19 @@ An example of using ESNUEL in batch mode:
     # Create predictions for a small dataset (example/testmols.csv):
     python src/esnuel/calculator.py -b example/testmols.csv
 
-The calculations are now saved in a "./calculations" folder, and a dataframe containing the results are found in "submitit_results/testmol/*_result.pkl"
+The calculations are now saved in a "./calculations" folder, and a dataframe containing the results is found in "submitit_results/testmol/*_result.pkl"
 
 
 The SLURM commands can be modified via the following command line arguments:
   - '--partition': The SLURM partition that you submit to, default='kemi1'.
   - '--parallel_calcs': The number of parallel molecule calculations (the total number of CPU cores requested for each SLURM job = parallel_calcs*cpus_per_calc), default=2.
   - '--cpus_per_calc': The number of cpus per molecule calculation (the total number of CPU cores requested for each SLURM job = parallel_calcs*cpus_per_calc), default=4.
-  - '--mem_gb': The total memory usage in gigabyte (gb) requested for each SLURM job, default=20.
+  - '--mem_gb': The total memory usage in gigabytes (gb) requested for each SLURM job, default=20.
   - '--timeout_min': The total allowed duration in minutes (min) of each SLURM job, default=6000.
   - '--slurm_array_parallelism': The maximum number of parallel SLURM jobs to run simultaneously (taking one molecule at a time in batch mode), default=25.
 
 
-  For the QM calculations, the molecular charge is given as the formal charge using RDKit and the spin is hardcoded to S=0 (multiplicity=1), as we focus on closed-shell molecules.
+  For the QM calculations, the molecular charge is defined by the formal charge of the molecule using RDKit, and the spin is hardcoded to S=0 (multiplicity=1), as we focus on closed-shell molecules.
   This can be modified in the "calculateEnergy" function in "src/esnuel/calculator.py".
 
 
