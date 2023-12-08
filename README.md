@@ -46,6 +46,19 @@ An example of using ESNUEL in batch mode:
 The calculations are now saved in a "./calculations" folder, and a dataframe containing the results are found in "submitit_results/testmol/*_result.pkl"
 
 
+SLURM commands can modified via the following command line arguments:
+  - '--partition': The SLURM partition that you submit to, default='kemi1'.
+  - '--parallel_calcs': The number of parallel molecule calculations (the total number of CPU cores requested for each SLURM job = parallel_calcs*cpus_per_calc), default=2.
+  - '--cpus_per_calc': The number of cpus per molecule calculation (the total number of CPU cores requested for each SLURM job = parallel_calcs*cpus_per_calc), default=4.
+  - '--mem_gb': The total memory usage in gigabyte (gb) requested for each SLURM job, default=20.
+  - '--timeout_min': The total allowed duration in minutes (min) of each SLURM job, default=6000.
+  - '--slurm_array_parallelism': The maximum number of parallel SLURM jobs to run simultaneously (taking one molecule at a time in batch mode), default=25.
+
+
+  For the QM calculations, the molecular charge is given as the formal charge using RDKit and the spin is hardcoded to S=0 (multiplicity=1), as we only focus on closed-shell molecules.
+  This can be modified in the "calculateEnergy" function in "src/esnuel/calculator.py".
+
+
 ## Citation 
 
 Our work is available as a preprint on [ChemRxiv](https://doi.org/10.26434/chemrxiv-2023-pd395), where more information is available. 

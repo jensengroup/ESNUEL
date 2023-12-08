@@ -45,11 +45,6 @@ import molecule_formats as molfmt
 import run_xTB as run_xTB
 import run_orca as run_orca
 
-# CPU and memory usage
-num_cpu_parallel = 2 # number of parallel jobs.
-num_cpu_single = 4 # number of cpus per job.
-mem_gb = 20 # total memory usage per task.
-
 
 def parse_args():
     """
@@ -63,8 +58,8 @@ def parse_args():
     parser.add_argument('--partition', default='kemi1', type=str, help='The SLURM partition that you submit to')
     parser.add_argument('--parallel_calcs', default=2, type=int, help='The number of parallel molecule calculations (the total number of CPU cores requested for each SLURM job = parallel_calcs*cpus_per_calc)')
     parser.add_argument('--cpus_per_calc', default=4, type=int, help='The number of cpus per molecule calculation (the total number of CPU cores requested for each SLURM job = parallel_calcs*cpus_per_calc)')
-    parser.add_argument('--mem_gb', default=20, type=int, help='The total memory usage in gigabyte (GB) of each SLURM job')
-    parser.add_argument('--timeout_min', default=6000, type=int, help='The total allowed duration of a SLURM job in minutes')
+    parser.add_argument('--mem_gb', default=20, type=int, help='The total memory usage in gigabyte (gb) requested for each SLURM job')
+    parser.add_argument('--timeout_min', default=6000, type=int, help='The total allowed duration in minutes (min) of each SLURM job')
     parser.add_argument('--slurm_array_parallelism', default=25, type=int, help='The maximum number of parallel SLURM jobs to run simultaneously (taking one molecule at a time in batch mode)')
     return parser.parse_args()
 
