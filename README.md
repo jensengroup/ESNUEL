@@ -32,7 +32,7 @@ OBS!
 An example of usage via CLI command:
 
     # Create predictions for a test molecule (OBS! Only names without "_" are allowed):
-    python src/esnuel/calculator.py --smi 'Cn1c(C(C)(C)N)nc(C(=O)NCc2ccc(F)cc2)c(O)c1=O' --name 'testmol' &
+    python src/esnuel/calculator.py --smiles 'Cn1c(C(C)(C)N)nc(C(=O)NCc2ccc(F)cc2)c(O)c1=O' --name 'testmol' &
     
 
 The calculations are now saved in a "./calculations" folder along with a graphical output of the results (in .html format).
@@ -41,7 +41,7 @@ The graphical output presents the user with the most electrophilic and nucleophi
 An example of using ESNUEL in batch mode:
 
     # Create predictions for a small dataset (example/testmols.csv):
-    python src/esnuel/calculator.py -b example/testmols.csv
+    python src/esnuel/calculator.py -b example/testmols.csv -n 'testmols'
 
 The calculations are now saved in a "./calculations" folder, and a dataframe containing the results is found in "submitit_results/testmol/*_result.pkl"
 
