@@ -121,7 +121,7 @@ e_smirks_names_list = ["Oxonium",
                       'double_bond', # added to capture additional sites
                       'double_bond_neighbouratom_with_charge_plus1', # added to capture additional sites
                       'triple_bond', # added to capture additional sites
-                      'triple_bond_neighbouratom_with_charge_plus1' # added to capture additional sites
+                      'triple_bond_neighbouratom_with_charge_plus1', # added to capture additional sites
                       'Borane' # added to capture additional sites
                       ]
 
@@ -140,8 +140,8 @@ e_smirks_list = ['[#6:1]=[O+;!$([O]~[!#6]);!$([S]*~[#7,#8,#15,#16]):2]>>[CH3][#6
                 '[*+0:1]=[*+0:2]>>[CH3][*:1]-[*-1:2]', # added to capture additional sites
                 '[*+0:1]=[*+1:2]>>[CH3][*:1]-[*+0:2]', # added to capture additional sites
                 '[*+0:1]#[*+0:2]>>[CH3][*:1]=[*-1:2]', # added to capture additional sites
-                '[*+0:1]#[*+1:2]>>[CH3][*:1]=[*+0:2]' # added to capture additional sites
-                '[B+0:1]>>[CH3][*-1:1]', # added to capture additional sites
+                '[*+0:1]#[*+1:2]>>[CH3][*:1]=[*+0:2]', # added to capture additional sites
+                '[BX3+0:1]>>[CH3][*-1:1]' # added to capture additional sites
                 ]
 # ### BEGIN SMe (OBS! Require changes to run_rxn() in molecule_formats.py) ###
 # e_smirks_list = ['[#6:1]=[O+;!$([O]~[!#6]);!$([S]*~[#7,#8,#15,#16]):2]>>[CH3][#16X2][#6:1][O+0:2]', 
@@ -159,8 +159,8 @@ e_smirks_list = ['[#6:1]=[O+;!$([O]~[!#6]);!$([S]*~[#7,#8,#15,#16]):2]>>[CH3][#6
 #                 '[*+0:1]=[*+0:2]>>[CH3][#16X2][*:1]-[*-1:2]', # added to capture additional sites
 #                 '[*+0:1]=[*+1:2]>>[CH3][#16X2][*:1]-[*+0:2]', # added to capture additional sites
 #                 '[*+0:1]#[*+0:2]>>[CH3][#16X2][*:1]=[*-1:2]', # added to capture additional sites
-#                 '[*+0:1]#[*+1:2]>>[CH3][#16X2][*:1]=[*+0:2]' # added to capture additional sites
-#                 '[B+0:1]>>[CH3][#16X2][*-1:1]', # added to capture additional sites
+#                 '[*+0:1]#[*+1:2]>>[CH3][#16X2][*:1]=[*+0:2]', # added to capture additional sites
+#                 '[BX3+0:1]>>[CH3][#16X2][*-1:1]' # added to capture additional sites
 #                 ]
 # ### END SMe ###
 
