@@ -61,14 +61,16 @@ The SLURM commands can be modified via the following command line arguments:
 
 ## Citation 
 
-Our work is available as a preprint on [ChemRxiv](https://doi.org/10.26434/chemrxiv-2023-pd395), where more information is available. 
+Our work is open access on [Digital Discovery](https://doi.org/10.1039/D3DD00224A), where more information is available.
 ```
-@article{ree2023esnuel,
-  doi = {10.26434/chemrxiv-2023-pd395},
-  url = {https://doi.org/10.26434/chemrxiv-2023-pd395},
-  year = {2023},
-  month = oct,
+@article{ree2024esnuel,
+  title = {Automated quantum chemistry for estimating nucleophilicity and electrophilicity with applications to retrosynthesis and covalent inhibitors},
+  ISSN = {2635-098X},
+  url = {http://dx.doi.org/10.1039/D3DD00224A},
+  DOI = {10.1039/d3dd00224a},
+  journal = {Digital Discovery},
+  publisher = {Royal Society of Chemistry (RSC)},
   author = {Nicolai Ree and Andreas H. G\"{o}ller and Jan H. Jensen},
-  title = {Automated Quantum Chemistry for Estimating Nucleophilicity and Electrophilicity with Applications to Retrosynthesis and Covalent Inhibitors}
+  year = {2024}
 }
 ```
