@@ -43,7 +43,7 @@ from locate_atom_sites import find_electrophilic_sites_and_generate_MAAproducts,
 from molecule_drawer import generate_structure, generate_output_tables, html_output
 import molecule_formats as molfmt
 import run_xTB as run_xTB
-import run_orca as run_orca
+# import run_orca as run_orca
 
 
 def parse_args():
@@ -158,8 +158,8 @@ def calculateEnergy(args):
     best_conf_mol = final_conf_mols[minE_index]
     
     best_conf_energy = final_conf_energies[minE_index]
-    if best_conf_energy != 60000.0:
-        best_conf_energy = run_orca.run_orca('xtbopt.xyz', chrg, spin, conf_paths[minE_index], ncores=cpus_per_calc, mem=(int(mem_gb)/2)*1000, optimize=False) # comment when doing single point calculations on all unique conformers, otherwise this runs a Orca single point calculation on the lowest xTB energy conformer
+    # if best_conf_energy != 60000.0:
+    #     best_conf_energy = run_orca.run_orca('xtbopt.xyz', chrg, spin, conf_paths[minE_index], ncores=cpus_per_calc, mem=(int(mem_gb)/2)*1000, optimize=False) # comment when doing single point calculations on all unique conformers, otherwise this runs a Orca single point calculation on the lowest xTB energy conformer
     
     best_conf_calc_log = final_conf_calc_logs[minE_index]
 
@@ -277,12 +277,12 @@ def calc_MAA_and_MCA(reac_smis: str, name: str):
     MCA_values = [[] for _ in range(len(reac_mols))]
     MCA_calc_logs = [[] for _ in range(len(reac_mols))]
 
-    # methyl_anion_ref = -10299.839324620309  # kJ/mol. GFN1-xTB ALPBsolvent DMSO: -3.923001615610 Eh = -10299.839324620309 kJ/mol.
-    # methyl_cation_ref = -8328.781129518116 # kJ/mol. GFN1-xTB ALPBsolvent DMSO: -3.172265197289 Eh = -8328.781129518116 kJ/mol.
+    methyl_anion_ref = -10299.839324620309  # kJ/mol. GFN1-xTB ALPBsolvent DMSO: -3.923001615610 Eh = -10299.839324620309 kJ/mol.
+    methyl_cation_ref = -8328.781129518116 # kJ/mol. GFN1-xTB ALPBsolvent DMSO: -3.172265197289 Eh = -8328.781129518116 kJ/mol.
     # methyl_anion_ref = -10052.419640018385  # kJ/mol. GFN2-xTB ALPBsolvent DMSO: -3.828764434637 Eh = -10052.419640018385 kJ/mol.
     # methyl_cation_ref = -8233.08622397756 # kJ/mol. GFN2-xTB ALPBsolvent DMSO: -3.135816932689 Eh = -8233.08622397756 kJ/mol.
-    methyl_anion_ref = -104803.89889591146  # kJ/mol. Orca OPT NumFreq r2SCAN-3c SMDsolvent DMSO on GFN1-xTB ALPBsolvent DMSO geometry: -39.91769694 Eh = -104803.89889591146 kJ/mol.
-    methyl_cation_ref = -103897.65006587801 # kJ/mol. Orca OPT NumFreq r2SCAN-3c SMDsolvent DMSO on GFN1-xTB ALPBsolvent DMSO geometry: -39.57252499 Eh = -103897.65006587801 kJ/mol.
+    # methyl_anion_ref = -104803.89889591146  # kJ/mol. Orca OPT NumFreq r2SCAN-3c SMDsolvent DMSO on GFN1-xTB ALPBsolvent DMSO geometry: -39.91769694 Eh = -104803.89889591146 kJ/mol.
+    # methyl_cation_ref = -103897.65006587801 # kJ/mol. Orca OPT NumFreq r2SCAN-3c SMDsolvent DMSO on GFN1-xTB ALPBsolvent DMSO geometry: -39.57252499 Eh = -103897.65006587801 kJ/mol.
 
     it_prod_energies = iter(prod_energies)
     sliced_prod_energies_list = [list(islice(it_prod_energies, 0, i)) for i in prod_amounts] # all even slices are the MAA energies and all uneven slices are the MCA energies
