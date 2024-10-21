@@ -8,7 +8,7 @@ ESNUEL (**ES**timating **NU**cleophilicity and **EL**ectrophilicity) is a fully 
 
 [TRY ESNUEL: https://www.esnuel.org](https://www.esnuel.org)
 
-GitHub repository for our atom-based ML models is: https://github.com/jensengroup/ESNUEL_ML
+GitHub repository for our atom-based ML models: https://github.com/jensengroup/ESNUEL_ML
 
 
 ## Installation
